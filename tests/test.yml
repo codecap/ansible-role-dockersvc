@@ -1,0 +1,17 @@
+---
+- hosts:       localhost
+  remote_user: root
+  connection:  local
+  roles:
+    - role: ansible-role-dockersvc
+      dockersvc_conf:
+        name:                'http.server'
+        image:               'python:3.6-alpine'
+        success_exit_status: '0 2 SIGTERM SIGKILL 137'
+        cmd:                 'python'
+        run_parameters:
+          '--publish':    '8000:8000/tcp'
+          '--net':        'host'
+        service_parameters:
+          '-m':           'http.server'
+        ensure:           'ignore'

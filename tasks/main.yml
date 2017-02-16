@@ -1,0 +1,86 @@
+---
+##############################################################################
+#
+# tasks file for dockersvc
+#
+##############################################################################
+# - name: "Debug dockersvc_conf"
+#   debug:
+#     msg: "{{dockersvc_conf}}"
+# - name: "Debug __dockersvc_conf"
+#   debug:
+#     msg: "{{__dockersvc_conf}}"
+# - name: "Debug __run_parameters_str"
+#   debug:
+#     msg: "{{__run_parameters_str}}"
+# - name: "Debug __service_parameters_str"
+#   debug:
+#     msg: "{{__service_parameters_str}}"
+# - name: "Debug __service_parameters_str"
+#   debug:
+#     msg: "{{__dockersvc_conf.environment_file_path|dirname}}"
+# - name: "Debug __ensure_service_calc"
+#   debug:
+#     msg: "{{__ensure_service_calc}}"
+# - name: "Debug __ensure_service"
+#   debug:
+#     msg: "{{__ensure_service}}"
+- name: 'Create directory for service configuration'
+  file:
+    path: "{{__dockersvc_conf.environment_file_path|dirname}}"
+    mode: '0755'
+    state: directory
+- name: 'Create environment file'
+  copy:
+    dest: "{{__dockersvc_conf.environment_file_path}}"
+    content: |
+      {% for k,v in dockersvc_conf.environment.iteritems() %}
+      {{k}}={{v}}
+      {% endfor %}
+- name: "Configure systemd service"
+  copy:
+    dest:           "/etc/systemd/system/{{dockersvc_conf.name}}.service"
+    #
+    # TODO: other helpful parameter needed?
+    #
+    content: |
+      #
+      # Ansible managed
+      #
+      # https://www.freedesktop.org/software/systemd/man/systemd.service.html
+      [Unit]
+      Description=Dockerized {{dockersvc_conf.name}} service
+      After=network.target
+      After=network-online.target
+      Wants=network-online.target
+      Requires=docker.service
+      After=docker.service
+      [Service]
+      EnvironmentFile=-{{__dockersvc_conf.environment_file_path}}
+      {% for v in __dockersvc_conf.exec_start %}
+      ExecStart={{v}}
+      {% endfor %}
+      {% for v in __dockersvc_conf.exec_stop %}
+      ExecStop={{v}}
+      {% endfor %}
+      Restart={{dockersvc_conf.restart}}
+      {% if 'success_exit_status' in dockersvc_conf.keys() -%}
+      SuccessExitStatus={{dockersvc_conf.success_exit_status}}
+      {% endif -%}
+      {% if 'limit_no_file' in dockersvc_conf.keys() -%}
+      LimitNOFILE={{dockersvc_conf.limit_no_file}}
+      {% endif -%}
+      [Install]
+      WantedBy=default.target
+  when: not dockersvc_conf.custom_unit_file_content
+  notify:
+    - 'Systemd daemon-reload'
+    - 'Ensure service state'
+- name: "Configure systemd service (custom unit file)"
+  copy:
+    dest:    "/etc/systemd/system/{{dockersvc_conf.name}}.service"
+    content: "{{dockersvc_conf.custom_unit_file_content}}"
+  when: dockersvc_conf.custom_unit_file_content
+  notify:
+    - 'Systemd daemon-reload'
+    - 'Ensure service state'

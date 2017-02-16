@@ -1,0 +1,69 @@
+---
+##############################################################################
+#
+# vars file for dockersvc
+#
+# NOTE: variables prefixed with __ are for internal use only. They are
+#       calculated with the help of dockersvc_conf, which should be
+#       used by the end user.
+#
+##############################################################################
+dockersvc_conf:
+  service_parameters:       {}
+  run_parameters:           {}
+  environment:              {}
+  restart:                  'on-failure'
+  custom_unit_file_content: "{{None|default(omit)}}"
+  ensure:
+    enabled:                true
+    state:                  started
+  exit_codes:
+
+__service_full_name: systemd.{{dockersvc_conf.name|mandatory}}
+
+__dockersvc_conf:
+  full_name:      "{{__service_full_name}}"
+  exec_start:
+    - "/usr/bin/docker run  {{__run_parameters_str}} {{dockersvc_conf.image|mandatory}} {{dockersvc_conf.cmd|default('')}} {{__service_parameters_str|default('')}}"
+  exec_stop:
+    - /usr/bin/docker stop  {{__service_full_name}}
+    - /usr/bin/docker rm -f {{__service_full_name}}
+  environment_file_path: "/etc/{{dockersvc_conf.name}}/environment"
+
+##############################################################################
+# Ensure service
+__ensure_service_calc: >
+  {%- if dockersvc_conf.ensure is mapping -%}
+    {{'enabled' in dockersvc_conf.ensure.keys() or 'state' in dockersvc_conf.ensure.keys()}}
+  {%- else -%}
+    {{False-}}
+  {%- endif -%}
+__ensure_service: "{{__ensure_service_calc|regex_replace('\\W+','')|bool}}"
+##############################################################################
+# Run parameters
+__run_parameters:
+  '--interactive':  ''
+  '--name':         "systemd.{{dockersvc_conf.name}}"
+__run_parameters_tmp: "{{__run_parameters|combine(dockersvc_conf.run_parameters)}}"
+__run_parameters_calc: >
+  {% for k, v in __run_parameters_tmp.iteritems() -%}
+  {% if v is iterable and v is not string -%}
+  {{k}} {{v|join(' ' + k + ' ')}}
+  {% elif v is string or v is not iterable and v is not mapping -%}
+  {{k}} {{v}}
+  {% endif  -%}
+  {% endfor -%}
+# remove trailing \n
+__run_parameters_str: "{{__run_parameters_calc[:-1]}}"
+##############################################################################
+# Service parameters
+__service_parameters_calc: >
+  {% for k, v in dockersvc_conf.service_parameters.iteritems() -%}
+  {% if v is iterable and v is not string -%}
+  {{k}} {{v|join(' ' + k + ' ')}}
+  {% elif v is string or v is not iterable and v is not mapping -%}
+  {{k}} {{v}}
+  {% endif  -%}
+  {% endfor -%}
+# remove trailing \n
+__service_parameters_str: "{{__service_parameters_calc[:-1]}}"
