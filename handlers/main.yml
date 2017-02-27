@@ -9,6 +9,6 @@
 - name:      'Ensure service state'
   service:
     name:    "{{dockersvc_conf.name}}"
-    enable:  "{{dockersvc_conf.ensure.enable|default(omit)}}"
+    enabled: "{{dockersvc_conf.ensure.enabled|default(omit)}}"
     state:   "{{dockersvc_conf.ensure.state|default(omit)}}"
-  when:  __ensure_service == True
+  when:  __ensure_service == true
