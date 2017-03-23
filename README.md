@@ -1,6 +1,7 @@
 Ansible Role: dockersvc
 =========
 [![Build Status](https://travis-ci.org/codecap/ansible-role-dockersvc.svg?branch=master)](https://travis-ci.org/codecap/ansible-role-dockersvc)
+[![Ansible Galaxy](https://img.shields.io/badge/galaxy-codecap.dockersvc-blue.svg)](https://galaxy.ansible.com/codecap/dockersvc)
 
 An ansible role to manage dockerized services.
 
