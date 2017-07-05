@@ -20,7 +20,8 @@ dockersvc_conf:
   # set parameters needed by the service here
   service_parameters:       {}
   # set  docker run parameters
-  run_parameters:           {}
+  run_parameters:
+    '--log-driver':         journald
   # envirnoment variables
   environment:              {}
   # systemd restart parameter
@@ -74,4 +75,6 @@ BSD
 Author Information
 ------------------
 
-Vladislav Nazarenko
+Vladislav Nazarenko  
+http://codeberry.de
+
