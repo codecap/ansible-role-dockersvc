@@ -10,7 +10,8 @@
 ##############################################################################
 dockersvc_conf:
   service_parameters:       {}
-  run_parameters:           {}
+  run_parameters:
+    '--log-driver':         journald
   environment:              {}
   restart:                  'on-failure'
   custom_unit_file_content: "{{None|default(omit)}}"
