@@ -6,6 +6,9 @@
 ##############################################################################
 - name:     'Systemd daemon-reload'
   command:  'systemctl daemon-reload'
+- name:     'Restart service'
+  command:  'systemctl restart {{dockersvc_conf.name}}'
+  when:  __ensure_service == true and dockersvc_conf.ensure.state == 'started'
 - name:      'Ensure service state'
   service:
     name:    "{{dockersvc_conf.name}}"

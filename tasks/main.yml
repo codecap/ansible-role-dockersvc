@@ -75,6 +75,7 @@
   when: not dockersvc_conf.custom_unit_file_content
   notify:
     - 'Systemd daemon-reload'
+    - 'Restart service'
     - 'Ensure service state'
 - name: "Configure systemd service (custom unit file)"
   copy:
@@ -83,4 +84,5 @@
   when: dockersvc_conf.custom_unit_file_content
   notify:
     - 'Systemd daemon-reload'
+    - 'Restart service'
     - 'Ensure service state'
