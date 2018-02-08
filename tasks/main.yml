@@ -34,9 +34,14 @@
   copy:
     dest: "{{__dockersvc_conf.environment_file_path}}"
     content: |
-      {% for k,v in dockersvc_conf.environment.iteritems() %}
+      #
+      # Managed by ansible
+      #
+      {% for k,v in dockersvc_conf.environment.items() %}
       {{k}}={{v}}
       {% endfor %}
+  notify:
+    - 'Restart service'
 - name: "Configure systemd service"
   copy:
     dest:           "/etc/systemd/system/{{dockersvc_conf.name}}.service"
