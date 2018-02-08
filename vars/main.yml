@@ -45,6 +45,7 @@ __ensure_service: "{{__ensure_service_calc|regex_replace('\\W+','')|bool}}"
 __run_parameters:
   '--interactive':  ''
   '--name':         "systemd.{{dockersvc_conf.name}}"
+  '--env-file':     "/etc/{{dockersvc_conf.name}}/environment"
 __run_parameters_tmp: "{{__run_parameters|combine(dockersvc_conf.run_parameters)}}"
 __run_parameters_calc: >
   {% for k, v in __run_parameters_tmp.iteritems() -%}
