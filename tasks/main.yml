@@ -62,10 +62,10 @@
       After=docker.service
       [Service]
       EnvironmentFile=-{{__dockersvc_conf.environment_file_path}}
-      {% for v in __dockersvc_conf.exec_start %}
+      {% for v in (__dockersvc_conf.exec_start + dockersvc_conf.exec_start) %}
       ExecStart={{v}}
       {% endfor %}
-      {% for v in __dockersvc_conf.exec_stop %}
+      {% for v in (__dockersvc_conf.exec_stop + dockersvc_conf.exec_stop) %}
       ExecStop={{v}}
       {% endfor %}
       Restart={{dockersvc_conf.restart}}

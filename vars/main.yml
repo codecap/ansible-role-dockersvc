@@ -19,6 +19,8 @@ dockersvc_conf:
     enabled:                true
     state:                  started
   exit_codes:
+  exec_start:               []
+  exec_stop:                []
 
 __service_full_name: systemd.{{dockersvc_conf.name|mandatory}}
 
