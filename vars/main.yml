@@ -10,6 +10,7 @@
 ##############################################################################
 dockersvc_conf:
   service_parameters:       {}
+  service_parameter_separator: ' '
   run_parameters:
     '--log-driver':         journald
   environment:              {}
@@ -64,9 +65,9 @@ __run_parameters_str: "{{__run_parameters_calc[:-1]}}"
 __service_parameters_calc: >
   {% for k, v in dockersvc_conf.service_parameters.iteritems() -%}
   {% if v is iterable and v is not string -%}
-  {{k}} {{v|join(' ' + k + ' ')}}
+  {{k}}{{dockersvc_conf.service_parameter_separator}}{{v|join(' ' + k + ' ')}}
   {% elif v is string or v is not iterable and v is not mapping -%}
-  {{k}} {{v}}
+  {{k}}{{dockersvc_conf.service_parameter_separator}}{{v}}
   {% endif  -%}
   {% endfor -%}
 # remove trailing \n
